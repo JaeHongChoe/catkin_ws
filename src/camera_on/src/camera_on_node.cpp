@@ -63,6 +63,9 @@ int main(int argc, char**argv){
 	GaussianBlur(grayframe,grayframe, Size(9,9),0);
 	imshow("GGGG", grayframe);
 	*/
+
+	//threshold 
+
 	Mat thresframe;
 	threshold(grayframe,thresframe,100,255,THRESH_BINARY);
 	imshow("threshold", thresframe);
@@ -72,10 +75,13 @@ int main(int argc, char**argv){
 	Canny(grayframe, cannyframe, 30,90,3);
 	imshow("canny",cannyframe); 
 	*/
+
+
 	//polylines
 
 	Mat mask = Mat::zeros(grayframe.size(), grayframe.type());
 	Mat output;
+	// to make interest area(points).
 	cv::Point pts[5] = {
 	cv::Point(0,200),
 	cv::Point(0,180),
@@ -86,24 +92,22 @@ int main(int argc, char**argv){
 	
 	Scalar yy(255,255,255);
 	//polylines(grayframe, &pts, &npts, 1,false, Scalar(0,255,0),2);
-	fillConvexPoly(mask, pts, 5, yy);
-	//imshow("asdfsadf",mask);
+	fillConvexPoly(mask, pts, 5, yy); // mask
+	
+	//put mask on frame(video)
 	Mat bitwiseframe;
 	bitwise_and(thresframe, mask,bitwiseframe); 
 	//addWeighted(grayframe, 1, img_edges, 0.5,0, grayframe);
 	imshow("poly", bitwiseframe);
 
 	
-	// lane detection
-	
+	//use hough lines to draw lines 
 	vector<cv::Vec4i> line;
 	HoughLinesP(bitwiseframe,line,1,CV_PI/180,20,20,30);
 
 	for(int i=0; i< line.size();i++){
-	
 	cv::Vec4i l = line[i];
 	cv::line(frame, cv::Point(l[0], l[1]), cv::Point(l[2],l[3]), Scalar(0,0,255),2);
-
 	};
 
 	Mat norm;
